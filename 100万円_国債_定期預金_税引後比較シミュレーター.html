@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>国債・定期預金 税引後比較シミュレーター</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;background:#f5f7fb;color:#172033;margin:0}.w{max-width:980px;margin:auto;padding:16px}.hero{background:linear-gradient(135deg,#155fc4,#16866b);color:white;padding:24px;border-radius:22px}.card{background:white;border:1px solid #e2e8f0;border-radius:18px;padding:18px;margin-top:14px}.g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.p{border:1px solid #e2e8f0;border-radius:15px;padding:14px}.p h3{margin-top:0}.field{display:flex;gap:8px;align-items:center}.field input,.field select{width:100%;font-size:17px;padding:11px;border:1px solid #cbd5e1;border-radius:10px}.u{white-space:nowrap}.note{font-size:12px;color:#6b7280}.btn{width:100%;padding:15px;border:0;border-radius:12px;background:#ef8b1f;color:white;font-weight:900;font-size:18px;margin-top:14px}.r{border:1px solid #e2e8f0;border-radius:15px;padding:14px;text-align:center}.big{font-size:28px;font-weight:900;color:#0f58b9}.row{display:flex;justify-content:space-between;border-bottom:1px dashed #e5e7eb;padding:6px 0;font-size:13px}.rank{margin-top:12px;background:#eef9f5;border:1px solid #d3eee3;border-radius:14px;padding:13px}
+@media(max-width:760px){.g,.g2{grid-template-columns:1fr}}
+</style></head><body><div class="w">
+<div class="hero"><div style="font-weight:900">2026年9月の金利を初期値に設定</div><h1>100万円を置くならどれ？</h1><p>個人向け国債・新窓販国債・定期預金を、税引後の手取りで比較します。</p></div>
+<div class="card"><h2>① 元本</h2><div class="g2"><div><label>預ける金額</label><div class="field"><input id="principal" type="number" value="1000000" step="10000"><span class="u">円</span></div></div><div><label>税率</label><div class="field"><input id="taxRate" type="number" value="20.315" step="0.001"><span class="u">%</span></div><div class="note">一般的な利子課税を想定。</div></div></div></div>
+<div class="card"><h2>② 商品を選ぶ</h2><div class="g">
+<div class="p"><h3>個人向け国債</h3><select id="kojinType"><option value="var10">変動10年</option><option value="fix5">固定5年</option><option value="fix3">固定3年</option></select><div class="field" style="margin-top:10px"><input id="kojinRate" type="number" step="0.001" value="1.95"><span class="u">%/年</span></div><div id="kojinNote" class="note">2026年9月：変動10年 1.95%。将来も同率と仮定。</div></div>
+<div class="p"><h3>新窓販国債</h3><select id="shinType"><option value="y10">10年</option><option value="y5">5年</option><option value="y2">2年</option></select><div class="field" style="margin-top:10px"><input id="shinYield" type="number" step="0.001" value="2.943"><span class="u">%/年</span></div><div id="shinNote" class="note">2026年9月：10年 応募者利回り2.943%。満期保有前提。</div></div>
+<div class="p"><h3>定期預金</h3><select id="depYears"><option value="1">1年</option><option value="3">3年</option><option value="5" selected>5年</option><option value="10">10年</option></select><div class="field" style="margin-top:10px"><input id="depRate" type="number" step="0.001" value="1.0"><span class="u">%/年</span></div><div class="note">実際の銀行金利に変更してください。</div></div>
+</div><button id="calc" class="btn">税引後で比較する</button></div>
+<div class="card"><h2>③ 結果</h2><div class="g">
+<div class="r"><h3>個人向け国債</h3><div id="kTotal" class="big">0円</div><div class="row"><span>期間</span><b id="kYears"></b></div><div class="row"><span>税引前利息</span><b id="kGross"></b></div><div class="row"><span>税引後利息</span><b id="kNet"></b></div></div>
+<div class="r"><h3>新窓販国債</h3><div id="sTotal" class="big">0円</div><div class="row"><span>期間</span><b id="sYears"></b></div><div class="row"><span>税引前利益</span><b id="sGross"></b></div><div class="row"><span>税引後利益</span><b id="sNet"></b></div></div>
+<div class="r"><h3>定期預金</h3><div id="dTotal" class="big">0円</div><div class="row"><span>期間</span><b id="dYears"></b></div><div class="row"><span>税引前利息</span><b id="dGross"></b></div><div class="row"><span>税引後利息</span><b id="dNet"></b></div></div>
+</div><div id="rank" class="rank"></div></div>
+<div class="card"><h2>注意</h2><div class="note">個人向け国債の変動10年は将来金利が変わります。新窓販国債は途中売却すると市場価格で元本割れの可能性があります。定期預金は中途解約で適用金利が下がる場合があります。新窓販国債は応募者利回りを使った簡易比較です。</div></div>
+</div>
+<script>
+const $=id=>document.getElementById(id),yen=x=>Math.round(x).toLocaleString('ja-JP')+'円';
+const kp={var10:[10,1.95,'2026年9月：変動10年 1.95%。将来も同率と仮定。'],fix5:[5,2.24,'2026年9月：固定5年 2.24%。'],fix3:[3,1.96,'2026年9月：固定3年 1.96%。']};
+const sp={y10:[10,2.943,'2026年9月：10年 応募者利回り2.943%。満期保有前提。'],y5:[5,2.171,'2026年9月：5年 応募者利回り2.171%。満期保有前提。'],y2:[2,1.672,'2026年9月：2年 応募者利回り1.672%。満期保有前提。']};
+function calc(){const p=+$('principal').value||0,t=(+$('taxRate').value||0)/100,ky=kp[$('kojinType').value][0],kr=(+$('kojinRate').value||0)/100,sy=sp[$('shinType').value][0],sr=(+$('shinYield').value||0)/100,dy=+$('depYears').value,dr=(+$('depRate').value||0)/100;
+const kg=p*kr*ky,kn=kg*(1-t),sg=p*sr*sy,sn=sg*(1-t),dg=p*dr*dy,dn=dg*(1-t);
+$('kYears').textContent=ky+'年';$('kGross').textContent=yen(kg);$('kNet').textContent=yen(kn);$('kTotal').textContent=yen(p+kn);
+$('sYears').textContent=sy+'年';$('sGross').textContent=yen(sg);$('sNet').textContent=yen(sn);$('sTotal').textContent=yen(p+sn);
+$('dYears').textContent=dy+'年';$('dGross').textContent=yen(dg);$('dNet').textContent=yen(dn);$('dTotal').textContent=yen(p+dn);
+const a=[['個人向け国債',kn/ky],['新窓販国債',sn/sy],['定期預金',dn/dy]].sort((x,y)=>y[1]-x[1]);
+$('rank').innerHTML='<b>1年あたりの税引後利益ランキング：</b><br>'+a.map((x,i)=>(i+1)+'位 '+x[0]+' 約'+yen(x[1])+'/年').join('<br>');
+}
+$('kojinType').onchange=()=>{const v=kp[$('kojinType').value];$('kojinRate').value=v[1];$('kojinNote').textContent=v[2];calc()};
+$('shinType').onchange=()=>{const v=sp[$('shinType').value];$('shinYield').value=v[1];$('shinNote').textContent=v[2];calc()};
+['principal','taxRate','kojinRate','shinYield','depYears','depRate'].forEach(id=>$(id).addEventListener('input',calc));$('calc').onclick=calc;calc();
+</script></body></html>
